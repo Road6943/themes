@@ -15,8 +15,15 @@ function getTags(themeObj) {
     return localStorage[localStorageKey] || "";
 }
 
-// TODO, might expand to have || + && functionality later
-function searchThemes(searchQuery="") {
+// Use really high integer so themes without proper parsing only appear at end
+function resetAllFlexOrders() {
+    document.querySelectorAll('.card[data-theme-creation-index]').forEach(themeCard => {
+        themeCard.style.order = Number.MAX_SAFE_INTEGER;
+    });
+}
+
+function searchThemesByText(searchQuery="") {
+    resetAllFlexOrders();
     searchQuery = searchQuery.trim().toLowerCase();
     
     // Empty search means show all themes
@@ -48,6 +55,24 @@ function searchThemes(searchQuery="") {
         const themeCard = document.querySelector(`.card[data-theme-creation-index="${themeCreationIndex}"]`);
         themeCard.classList.remove('d-none');
     }
+}
+
+function searchThemesByColor(clr) {
+    resetAllFlexOrders();
+    const searchColor = new Color(clr);
+
+    // Clear text search box
+    document.getElementById('text-searchbar').value = "";
+
+    // Unhide all themes and order by smallest to largest color difference
+    document.querySelectorAll('.card[data-theme-creation-index]').forEach(themeCard => {
+        themeCard.classList.remove('d-none');
+
+        const themeCreationIndex = themeCard.getAttribute('data-theme-creation-index');
+        const themeBgColor = HOISTED.bgColorLookup[themeCreationIndex];
+        const colorDiff = searchColor.deltaE(themeBgColor, "76");
+        themeCard.style.order = Math.round(colorDiff);
+    });
 }
 
 function makeThemeCard(themeObj, themeCreationIndex) {
@@ -192,15 +217,6 @@ function buildGallery(themeObjs) {
     });
 }
 
-// To save storage space, delete unused localStorage keys
-function pruneUnusedLocalStorageKeys() {
-    for (const key in localStorage) {
-        if (localStorage.getItem(key)?.trim() === "") {
-            localStorage.removeItem(key);
-        }
-    }
-}
-
 async function main() {
     const themeStrings = await getThemeStrings();
 
@@ -210,6 +226,7 @@ async function main() {
     shuffleArray(themeObjs);
 
     buildGallery(themeObjs);
+    makeBgColorLookup(themeObjs);
     pruneUnusedLocalStorageKeys();
 }
 

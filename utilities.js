@@ -1,3 +1,6 @@
+function HOISTED(){};
+HOISTED.bgColorLookup = {};
+
 const colorNames = ["teal","lgreen","orange","yellow","lavender","pink","vlgrey","lgrey","guiwhite","black","blue","green","red","gold","purple","magenta","grey","dgrey","white","guiblack"];
 const colorNameToIndex = {};
 for (let i = 0; i < colorNames.length; i++) { 
@@ -111,4 +114,30 @@ function escapeHtml (string) {
     return lastIndex !== index
         ? html + str.substring(lastIndex, index)
         : html
+}
+
+// To save storage space, delete unused localStorage keys
+function pruneUnusedLocalStorageKeys() {
+    for (const key in localStorage) {
+        if (localStorage.getItem(key)?.trim() === "") {
+            localStorage.removeItem(key);
+        }
+    }
+}
+
+// Make a hash of theme-creation-index => Color.js obj
+//  to make it faster to calculate color differences
+function makeBgColorLookup(themeObjs) {
+    for (let themeCreationIdx = 0; themeCreationIdx < themeObjs.length; themeCreationIdx++) {
+        const tcTable = themeObjs[themeCreationIdx].config.themeColor.table;
+        const bgColor = tcTable[ colorNameToIndex["white"] ];
+        try {
+            HOISTED.bgColorLookup[themeCreationIdx] = new Color(bgColor);
+        } catch {
+            // This previously happened when discord channel #1c interfered with colors starting with #1c
+            //  and "<#channelId>" replaced #1c in the colors
+            //  I modified scraper discord bot to have customizable replacements to replace anything like this in the future
+            console.log('Could not parse color from: ' + bgColor);
+        }
+    }
 }
