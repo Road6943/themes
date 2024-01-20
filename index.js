@@ -88,8 +88,11 @@ function makeThemeCard(themeObj, themeCreationIndex) {
     // Text x-value changed to center it here
     // Moved background color to card itself to avoid overflow issues
     // Shifted everything 10 left to make it better centered
+    // xmlns and version allow safari rendering
     const themePreviewSvg = `
-        <svg class="theme-preview rounded" height="200" style="stroke: ${getHex('black')};" >
+        <svg class="theme-preview rounded" height="200" style="stroke: ${getHex('black')};" 
+            xmlns="http://www.w3.org/2000/svg" version="1.1"
+        >
             <rect class="barrelsAndRocks" x="40" y="40" rx="5" ry="5" ${sharedBarrelAttrs} />
             <circle class="blueTeam" cx="40" cy="50" r="20" fill="${getHex('blue')}" />
             
