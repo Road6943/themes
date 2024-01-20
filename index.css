@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css?family=Ubuntu:500');
+
+html, body {
+    font-family: Ubuntu, sans-serif;
+}
+
+.theme-preview {
+    stroke-width: 3;
+}
+
+/* make the svg text more visible and reflective of its in-game look */
+.theme-preview text {
+    font-family: Ubuntu, sans-serif;
+    font-size: 25px;
+    font-weight: bold;
+    stroke-width: 1;
+    letter-spacing: -1.5px;
+}
+
+.card {
+    width: 305px;
+}
+
+/* Navbar text */
+.navbar * * {
+    color: white;
+    /* vertically center, esp. when zoomed in */
+    align-items: center;
+}
+.navbar, .navbar * {
+    background-color: olivedrab;
+    /* horizontally center text, esp. when zoomed in */
+    text-align: center;
+}
+
+.nav-link:not(.disabled) {
+    text-decoration: underline;
+}
