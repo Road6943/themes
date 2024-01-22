@@ -141,3 +141,17 @@ function makeBgColorLookup(themeObjs) {
         }
     }
 }
+
+function filterBadWords(themeObjs) {
+    return themeObjs.filter(themeObj => {
+        const { name, author } = themeObj.themeDetails;
+        // Add to this list as you go
+        const wordsToFilterOut = ['sex', 'ass', 'pussy', 'bbc', 'tits', 'poop', 'pee', 'coochie'];
+        for (const wordToFilterOut of wordsToFilterOut) {
+            if (name.toLowerCase().includes(wordToFilterOut) || author.toLowerCase().includes(wordToFilterOut)) {
+                return false;
+            }
+        }
+        return true;
+    })
+}

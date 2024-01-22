@@ -224,8 +224,11 @@ async function main() {
     const themeStrings = await getThemeStrings();
 
     let themeObjs = themeStrings.map(str => parseTigerThemeString(str))
-    // Remove invalid themes then randomize theme order
+    // Remove invalid themes
     themeObjs = themeObjs.filter(x => x !== null);
+    // Remove certain theme names/authors
+    themeObjs = filterBadWords(themeObjs);
+    // Randomize theme order
     shuffleArray(themeObjs);
 
     buildGallery(themeObjs);
