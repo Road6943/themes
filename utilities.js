@@ -147,7 +147,8 @@ function filterBadWords(themeObjs) {
         const { name, author } = themeObj.themeDetails;
         // Add to this list as you go
         // 'ass' needs space to not filter out 'classic'
-        const wordsToFilterOut = ['sex', ' ass', 'pussy', 'bbc', 'tits', 'poop', 'pee', 'coochie'];
+        // 'pee' needs space to not filter out 'speed'
+        const wordsToFilterOut = ['sex', ' ass', 'pussy', 'bbc', 'tits', 'poop', 'coochie', ' pee'];
         for (const wordToFilterOut of wordsToFilterOut) {
             if (name.toLowerCase().includes(wordToFilterOut) || author.toLowerCase().includes(wordToFilterOut)) {
                 return false;
