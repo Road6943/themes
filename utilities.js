@@ -8,7 +8,10 @@ for (let i = 0; i < colorNames.length; i++) {
 }
 
 function exportThemeObj(themeObj, format) {
-    if (format === 'TIGER') {
+    if (format === 'v1') {
+        return convertTigerObjToV1Str(themeObj);
+    }
+    else if (format === 'TIGER') {
         return 'TIGER_JSON' + JSON.stringify(themeObj);
     }
     else if (format === 'normal') {
@@ -28,7 +31,7 @@ function exportThemeObj(themeObj, format) {
         }
 
         return JSON.stringify(normalTheme);
-    } 
+    }
     else {
         console.error(format + ' is not a valid stringify format!');
     }
@@ -153,7 +156,69 @@ function filterBadWords(themeObjs) {
             if (name.toLowerCase().includes(wordToFilterOut) || author.toLowerCase().includes(wordToFilterOut)) {
                 return false;
             }
+            // Not even worth trying to filter all of these out
+            if (author.toLowerCase().trim() === 'reaper') {
+                return false;
+            }
         }
         return true;
     })
 }
+
+
+// EXPORT TO V1 START
+
+function convertTigerObjToV1Str(tigerThemeObj) {
+	let newThemeObj = tigerThemeObjToArrasThemeObj(tigerThemeObj);
+	let newThemeStr = arrasThemeObjToStringInFormatV1(newThemeObj);
+	return newThemeStr;
+}
+
+// Modified from CX at https://codepen.io/road-to-100k/pen/WNWoPoY
+// original function: parsers.tiger
+// modified to not parse TIGER_JSON string and instead just take obj Tiger uses directly
+function tigerThemeObjToArrasThemeObj(tigerThemeObj) {
+	let {
+	themeDetails: { name, author },
+	config: {
+		graphical: { darkBorders, neon },
+		themeColor: { table, border },
+	},
+	} = tigerThemeObj;
+
+	table = table.map(colorHex => typeof colorHex !== 'string' || !/^#[0-9a-fA-F]{6}$/.test(colorHex) ? 0 : parseInt(colorHex.slice(1), 16))
+
+	table[4] = table[0]
+	table[7] = table[16]
+
+	let blend = Math.min(1, Math.max(0, border))
+
+	return {
+	name: (name || '').trim().slice(0, 40) || 'Unknown Theme',
+	author: (author || '').trim().slice(0, 40),
+	table,
+	specialTable: [table[neon ? 18 : 9]],
+	blend: darkBorders ? 1 : blend,
+	neon,
+	}
+};
+
+// lifted straight from CX - https://codepen.io/road-to-100k/pen/WNWoPoY
+// original function named stringifiers.v1
+function arrasThemeObjToStringInFormatV1(theme) {
+	let { name, author, table, specialTable, blend, neon } = theme
+	
+	let string = '\x6a\xba\xda\xb3\xf0'
+	string += String.fromCharCode(1)
+	string += String.fromCharCode(name.length) + name
+	string += String.fromCharCode(author.length) + author
+	string += String.fromCharCode(table.length)
+	for (let color of table) string += String.fromCharCode(color >> 16, (color >> 8) & 0xff, color & 0xff)
+	string += String.fromCharCode(specialTable.length)
+	for (let color of specialTable) string += String.fromCharCode(color >> 16, (color >> 8) & 0xff, color & 0xff)
+	string += String.fromCharCode(blend >= 1 ? 255 : blend < 0 ? 0 : Math.floor(blend * 0x100))
+	string += String.fromCharCode(neon ? 1 : 0)
+	return btoa(string).replace(/=+/, '')
+};
+
+// EXPORT TO V1 END

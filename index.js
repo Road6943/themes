@@ -3,7 +3,7 @@ async function getThemeStrings() {
     // Theme strings are in text file with 1 theme per line
     const themeStrings = await fetch(url)
         .then(res => res.text())
-        .then(str => str.split('\n'));
+        .then(str => str.split('\n').map(line => line.trim()));
 
     return themeStrings;
 }
@@ -152,8 +152,8 @@ function makeThemeCard(themeObj, themeCreationIndex) {
                             <button type="button" class="copy-theme btn btn-sm btn-outline-warning">Copy Theme</button>
                         </summary>
                         <textarea readonly 
-                            class="normal-container mt-2 form-control bg-secondary"
-                        >${_(exportThemeObj(themeObj, 'normal'))}</textarea>
+                            class="tiger-container mt-2 form-control bg-secondary"
+                        >${_(exportThemeObj(themeObj, 'v1'))}</textarea>
                     </details>
                     <details class="m-1">
                         <summary>
@@ -221,9 +221,19 @@ function buildGallery(themeObjs) {
 }
 
 async function main() {
-    const themeStrings = await getThemeStrings();
+    // list of lines, already trimmed
+    let themeStrings = await getThemeStrings();
+    // remove lines that don't start with correct prefixes
+    themeStrings = themeStrings.filter(str => {
+        if (str.startsWith('TIGER_JSON')) { return true }
+        else if (str.startsWith('arras/')) { return false } // TODO figure out how to parse arras/ v1 themes later 
+        else { return false }
+    })
 
-    let themeObjs = themeStrings.map(str => parseTigerThemeString(str))
+    let themeObjs = themeStrings.map(str => {
+        if (str.startsWith('TIGER_JSON')) { return parseTigerThemeString(str) }
+        //else if (str.startsWith('arras/')) { } // TODO: figure out how to parse arras/ themes
+    })
     // Remove invalid themes
     themeObjs = themeObjs.filter(x => x !== null);
     // Remove certain theme names/authors
